@@ -266,13 +266,13 @@ func NewMockFilesystem() *MockFileSystem {
 	return &MockFileSystem{}
 }
 
-// Get provides a mock function with given fields: key
-func (_m *MockFileSystem) Get(key string) (file, error) {
-	ret := _m.Called(key)
+// Get provides a mock function with given fields: path
+func (_m *MockFileSystem) Get(path string) (file, error) {
+	ret := _m.Called(path)
 
 	var r0 file
 	if rf, ok := ret.Get(0).(func(string) file); ok {
-		r0 = rf(key)
+		r0 = rf(path)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(file)
@@ -281,7 +281,7 @@ func (_m *MockFileSystem) Get(key string) (file, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(key)
+		r1 = rf(path)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -290,12 +290,12 @@ func (_m *MockFileSystem) Get(key string) (file, error) {
 }
 
 // Put provides a mock function with given fields: src, location, fileType
-func (_m *MockFileSystem) Put(src io.ReadSeeker, location string, fileType string) (file, error) {
-	ret := _m.Called(src, location, fileType)
+func (_m *MockFileSystem) Put(src io.ReadSeeker, path string, extension string) (file, error) {
+	ret := _m.Called(src, path, extension)
 
 	var r0 file
 	if rf, ok := ret.Get(0).(func(io.ReadSeeker, string, string) file); ok {
-		r0 = rf(src, location, fileType)
+		r0 = rf(src, path, extension)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(file)
@@ -304,7 +304,7 @@ func (_m *MockFileSystem) Put(src io.ReadSeeker, location string, fileType strin
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(io.ReadSeeker, string, string) error); ok {
-		r1 = rf(src, location, fileType)
+		r1 = rf(src, path, extension)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -40,12 +40,12 @@ func NewS3FileSystem(region, bucket string, provider credentials.Provider) *S3Fi
 }
 
 // get a file using a specific s3 key and return an instance of the file interface
-func (fs *S3FileSystem) Get(key string) (file, error) {
+func (fs *S3FileSystem) Get(path string) (file, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
 	params := &s3.GetObjectInput{
 		Bucket: aws.String(fs.bucket),
-		Key:    aws.String(key),
+		Key:    aws.String(path),
 	}
 
 	resp, err := svc.GetObject(params)
@@ -56,21 +56,21 @@ func (fs *S3FileSystem) Get(key string) (file, error) {
 
 	r, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	return NewS3File(r, fs.FileUrl(key), resp.LastModified, fs), nil
+	return NewS3File(r, fs.FileUrl(path), resp.LastModified, fs), nil
 }
 
 // put a file into a key with an s3 bucket, start a session and make a request to put an object
 // returns a file interface from the response
-func (fs *S3FileSystem) Put(src io.ReadSeeker, location string, fileType string) (file, error) {
+func (fs *S3FileSystem) Put(src io.ReadSeeker, path string, fileType string) (file, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
-	location = SanitizePath(location)
-	path := joinPath(location, fileType)
+	path = SanitizePath(path)
+	full := joinPath(path, fileType)
 
 	content, _ := ioutil.ReadAll(src)
 	params := &s3.PutObjectInput{
 		Bucket:        aws.String(fs.bucket),
-		Key:           aws.String(path),
+		Key:           aws.String(full),
 		Body:          bytes.NewReader(content),
 		ContentLength: aws.Int64(int64(len(content))),
 		ContentType:   aws.String(fileType),
@@ -82,7 +82,7 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, location string, fileType string)
 	}
 
 	now := fs.time.Now()
-	return NewS3File(content, fs.FileUrl(path), &now, fs), nil
+	return NewS3File(content, fs.FileUrl(full), &now, fs), nil
 }
 
 // return a url to the corresponding file
