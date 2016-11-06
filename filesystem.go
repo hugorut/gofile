@@ -44,13 +44,10 @@ func joinPath(path, fileType string) string {
 	return path + "." + extension
 }
 
-// the core filesystem which can be extended and mocked
-type CoreFs interface {
-	Open(name string) (file, error)
-	Create(name string) (file, error)
-	Stat(name string) (os.FileInfo, error)
-	Copy(dst io.Writer, src io.Reader) (int64, error)
-	MkdirAll(path string, perm os.FileMode) error
+// the wrapped for the filesystem interface which allows an fluent interface
+type FileSystem interface {
+	Put(src io.ReadSeeker, location, fileType string) (file, error)
+	Get(key string) (file, error)
 }
 
 // the file which will be returned by the fs
@@ -58,10 +55,4 @@ type file interface {
 	io.Closer
 	io.ReadWriteSeeker
 	Stat() (os.FileInfo, error)
-}
-
-// the wrapped for the filesystem interface which allows an fluent interface
-type FileSystem interface {
-	Put(src io.ReadSeeker, location, fileType string) (file, error)
-	Get(key string) (file, error)
 }

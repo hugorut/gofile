@@ -7,6 +7,15 @@ import (
 	"regexp"
 )
 
+// the core filesystem which can be extended and mocked
+type CoreFs interface {
+	Open(name string) (file, error)
+	Create(name string) (file, error)
+	Stat(name string) (os.FileInfo, error)
+	Copy(dst io.Writer, src io.Reader) (int64, error)
+	MkdirAll(path string, perm os.FileMode) error
+}
+
 // osFS implements coreFs using the local disk.
 type osFS struct{}
 

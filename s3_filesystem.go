@@ -20,6 +20,7 @@ type S3FileSystem struct {
 	bucket string
 	config *aws.Config
 	caller S3Caller
+	time   Time
 }
 
 // Generate a pointer to a new s3 filesystem
@@ -34,6 +35,7 @@ func NewS3FileSystem(region, bucket string, provider credentials.Provider) *S3Fi
 			Credentials: credentials.NewCredentials(provider),
 		},
 		new(S3Call),
+		new(OSTime),
 	}
 }
 
@@ -79,7 +81,7 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, location string, fileType string)
 		return nil, err
 	}
 
-	now := time.Now()
+	now := fs.time.Now()
 	return NewS3File(content, fs.FileUrl(path), &now, fs), nil
 }
 
