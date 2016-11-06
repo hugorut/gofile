@@ -78,7 +78,7 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, location string, fileType string)
 
 	_, err := svc.PutObject(params)
 	if err != nil {
-		return nil, err
+		return new(S3File), err
 	}
 
 	now := fs.time.Now()

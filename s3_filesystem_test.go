@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
@@ -86,6 +87,40 @@ func TestPutCallsS3AndWrapsReponseInFile(t *testing.T) {
 
 	b, _ := ioutil.ReadAll(file)
 	assert.Equal(t, content, b)
+}
+
+func TestPutS3ReponseErrorReturnsZeroFileAndError(t *testing.T) {
+	bucket := "bucket"
+	region := "region"
+	config := getConfig(region)
+
+	location := "some/file"
+	fileType := "image/jpg"
+	path := "some/file.jpg"
+
+	content := []byte("some content")
+
+	params := &s3.PutObjectInput{
+		Bucket:        aws.String(bucket),
+		Key:           aws.String(path),
+		Body:          bytes.NewReader(content),
+		ContentLength: aws.Int64(int64(len(content))),
+		ContentType:   aws.String(fileType),
+	}
+
+	fs, caller, timer := setUpS3FileSystem(bucket, config)
+
+	now := time.Now()
+	timer.On("Now").Return(now)
+
+	e := errors.New("s3 problem")
+
+	caller.On("NewSvc", []*aws.Config{config}).Return(caller)
+	caller.On("PutObject", params).Return(nil, e)
+
+	file, err := fs.Put(bytes.NewReader(content), location, fileType)
+	assert.Equal(t, e, err)
+	assert.Equal(t, new(S3File), file)
 }
 
 func getConfig(region string) *aws.Config {
