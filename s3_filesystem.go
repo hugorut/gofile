@@ -19,6 +19,7 @@ import (
 type S3FileSystem struct {
 	bucket string
 	config *aws.Config
+	caller S3Caller
 }
 
 // Generate a pointer to a new s3 filesystem
@@ -32,13 +33,13 @@ func NewS3FileSystem(region, bucket string, provider credentials.Provider) *S3Fi
 			Region:      aws.String(region),
 			Credentials: credentials.NewCredentials(provider),
 		},
+		new(S3Call),
 	}
 }
 
 // get a file using a specific s3 key and return an instance of the file interface
 func (fs *S3FileSystem) Get(key string) (file, error) {
-	sess := session.New(fs.config)
-	svc := s3.New(sess)
+	svc := fs.caller.NewSvc(fs.config)
 
 	params := &s3.GetObjectInput{
 		Bucket: aws.String(fs.bucket),
@@ -59,8 +60,7 @@ func (fs *S3FileSystem) Get(key string) (file, error) {
 // put a file into a key with an s3 bucket, start a session and make a request to put an object
 // returns a file interface from the response
 func (fs *S3FileSystem) Put(src io.ReadSeeker, location string, fileType string) (file, error) {
-	sess := session.New(fs.config)
-	svc := s3.New(sess)
+	svc := fs.caller.NewSvc(fs.config)
 
 	location = SanitizePath(location)
 	path := joinPath(location, fileType)
@@ -86,6 +86,36 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, location string, fileType string)
 // return a url to the corresponding file
 func (fs *S3FileSystem) FileUrl(path string) string {
 	return "https://s3-" + *fs.config.Region + ".amazonaws.com/" + fs.bucket + path
+}
+
+// the interface that defines a wrapper around s3 interactions so that the calls
+// can be safely mocked and extended accordingly
+type S3Caller interface {
+	PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error)
+	GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error)
+	NewSvc(cfgs ...*aws.Config) S3Caller
+}
+
+type S3Call struct {
+	svc *s3.S3
+}
+
+// set the aws session instance so that calls can be made to the service
+func (s *S3Call) NewSvc(cfgs ...*aws.Config) S3Caller {
+	sess := session.New(cfgs...)
+	s.svc = s3.New(sess)
+
+	return s
+}
+
+// put an object into s3 using an PutObjectInput
+func (s *S3Call) PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error) {
+	return s.svc.PutObject(input)
+}
+
+// get an object from an s3 GetObjectInput
+func (s *S3Call) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error) {
+	return s.svc.GetObject(input)
 }
 
 // A struct which conforms to the file interface
