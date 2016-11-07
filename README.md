@@ -40,7 +40,7 @@ type File interface {
 reader := bytes.NewReader([]byte("my file contents"))
 
 filesys := gofile.NewOSFileSystem()
-file, err := filesys.Put(reader, "my/path/to-file", "text/txt")
+file, err := filesys.Put(reader, "my/path/to-file.txt")
 ```
 
 **Get**
@@ -57,7 +57,7 @@ region := "eu-west-1"
 bucket := "my-trusty-bucket"
 
 filesys := gofile.NewS3FileSystem(region, bucket, &aws.EnvProvider{})
-file, err := filesys.Put(reader, "my/path/to-file", "text/txt")
+file, err := filesys.Put(reader, "my/path/to-file.txt")
 ```
 
 **Get**
