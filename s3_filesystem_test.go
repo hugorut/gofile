@@ -44,7 +44,7 @@ func TestGetReturnsAnFileWithUrlOfFileAndLastModified(t *testing.T) {
 	assert.Nil(t, err)
 
 	info, _ := file.Stat()
-	assert.Equal(t, "https://s3-"+region+".amazonaws.com/"+bucket+path, info.Name())
+	assert.Equal(t, "https://s3-"+region+".amazonaws.com/"+bucket+"/"+path, info.Name())
 	assert.Equal(t, now, info.ModTime())
 
 	b, _ := ioutil.ReadAll(file)
@@ -82,7 +82,7 @@ func TestPutCallsS3AndWrapsReponseInFile(t *testing.T) {
 	assert.Nil(t, err)
 
 	info, _ := file.Stat()
-	assert.Equal(t, "https://s3-"+region+".amazonaws.com/"+bucket+path, info.Name())
+	assert.Equal(t, "https://s3-"+region+".amazonaws.com/"+bucket+"/"+path, info.Name())
 	assert.Equal(t, now, info.ModTime())
 
 	b, _ := ioutil.ReadAll(file)

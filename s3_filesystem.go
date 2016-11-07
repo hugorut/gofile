@@ -87,7 +87,7 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, path string, fileType string) (fi
 
 // return a url to the corresponding file
 func (fs *S3FileSystem) FileUrl(path string) string {
-	return "https://s3-" + *fs.config.Region + ".amazonaws.com/" + fs.bucket + path
+	return "https://s3-" + *fs.config.Region + ".amazonaws.com/" + fs.bucket + "/" + path
 }
 
 // the interface that defines a wrapper around s3 interactions so that the calls

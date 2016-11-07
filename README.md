@@ -9,7 +9,7 @@ Currently Gofile supports interactions with the core *OS* and *Amazon S3* filesy
 Install Gofile via `go get`
 
 ```
-go get github/hugorut/gofile.git
+go get github.com/hugorut/gofile
 ```
 
 The interface across the different filesystems is as follows:
