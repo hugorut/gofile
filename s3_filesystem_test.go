@@ -56,8 +56,6 @@ func TestPutCallsS3AndWrapsReponseInFile(t *testing.T) {
 	region := "region"
 	config := getConfig(region)
 
-	location := "some/file"
-	fileType := "image/jpg"
 	path := "some/file.jpg"
 
 	content := []byte("some content")
@@ -67,7 +65,7 @@ func TestPutCallsS3AndWrapsReponseInFile(t *testing.T) {
 		Key:           aws.String(path),
 		Body:          bytes.NewReader(content),
 		ContentLength: aws.Int64(int64(len(content))),
-		ContentType:   aws.String(fileType),
+		ContentType:   aws.String("image/jpeg"),
 	}
 
 	fs, caller, timer := setUpS3FileSystem(bucket, config)
@@ -78,7 +76,7 @@ func TestPutCallsS3AndWrapsReponseInFile(t *testing.T) {
 	caller.On("NewSvc", []*aws.Config{config}).Return(caller)
 	caller.On("PutObject", params).Return(nil, nil)
 
-	file, err := fs.Put(bytes.NewReader(content), location, fileType)
+	file, err := fs.Put(bytes.NewReader(content), path)
 	assert.Nil(t, err)
 
 	info, _ := file.Stat()
@@ -94,8 +92,6 @@ func TestPutS3ReponseErrorReturnsZeroFileAndError(t *testing.T) {
 	region := "region"
 	config := getConfig(region)
 
-	location := "some/file"
-	fileType := "image/jpg"
 	path := "some/file.jpg"
 
 	content := []byte("some content")
@@ -105,7 +101,7 @@ func TestPutS3ReponseErrorReturnsZeroFileAndError(t *testing.T) {
 		Key:           aws.String(path),
 		Body:          bytes.NewReader(content),
 		ContentLength: aws.Int64(int64(len(content))),
-		ContentType:   aws.String(fileType),
+		ContentType:   aws.String("image/jpeg"),
 	}
 
 	fs, caller, timer := setUpS3FileSystem(bucket, config)
@@ -118,7 +114,7 @@ func TestPutS3ReponseErrorReturnsZeroFileAndError(t *testing.T) {
 	caller.On("NewSvc", []*aws.Config{config}).Return(caller)
 	caller.On("PutObject", params).Return(nil, e)
 
-	file, err := fs.Put(bytes.NewReader(content), location, fileType)
+	file, err := fs.Put(bytes.NewReader(content), path)
 	assert.Equal(t, e, err)
 	assert.Equal(t, new(S3File), file)
 }

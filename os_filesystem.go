@@ -38,14 +38,21 @@ func NewOSFileSystem() *OSFileSystem {
 }
 
 // create a file with the given location and type and then copy
-func (fs *OSFileSystem) Put(src io.ReadSeeker, path, extension string) (File, error) {
+func (fs *OSFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	path = SanitizePath(path)
-	r := regexp.MustCompile("\\/.+$")
+	r := regexp.MustCompile("(.+\\/)*(.+)\\.(.+)$")
+	t := regexp.MustCompile("^\\/")
 
-	location := "." + string(filepath.Separator) + r.ReplaceAllString(path, "")
-	fs.os.MkdirAll(location, 0755)
+	// if we don't have a leading slash then we need to add a dot in order to
+	// faciliate relative path creation
+	if !t.MatchString(path) {
+		path = "." + string(filepath.Separator) + path
+	}
 
-	file, err := fs.os.Create(joinPath(path, extension))
+	matches := r.FindStringSubmatch(path)
+	fs.os.MkdirAll(matches[1], 0755)
+
+	file, err := fs.os.Create(path)
 	if err != nil {
 		return file, err
 	}

@@ -43,3 +43,16 @@ func TestStripBaseEncoding(t *testing.T) {
 	actual := StripBaseEncoding(im)
 	assert.Equal(t, expected, actual)
 }
+
+func TestGetMIMETypeFromPath(t *testing.T) {
+	paths := map[string]string{
+		"/my/path/here/image.jpg": "image/jpeg",
+		"image.jpg":               "image/jpeg",
+		"path/image.jpg":          "image/jpeg",
+	}
+
+	for input, expected := range paths {
+		actual := GetMIMETypeFromPath(input)
+		assert.Equal(t, expected, actual, "input: "+input)
+	}
+}

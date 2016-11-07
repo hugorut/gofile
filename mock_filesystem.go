@@ -290,12 +290,12 @@ func (_m *MockFileSystem) Get(path string) (File, error) {
 }
 
 // Put provides a mock function with given fields: src, location, FileType
-func (_m *MockFileSystem) Put(src io.ReadSeeker, path string, extension string) (File, error) {
-	ret := _m.Called(src, path, extension)
+func (_m *MockFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
+	ret := _m.Called(src, path)
 
 	var r0 File
-	if rf, ok := ret.Get(0).(func(io.ReadSeeker, string, string) File); ok {
-		r0 = rf(src, path, extension)
+	if rf, ok := ret.Get(0).(func(io.ReadSeeker, string) File); ok {
+		r0 = rf(src, path)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(File)
@@ -303,8 +303,8 @@ func (_m *MockFileSystem) Put(src io.ReadSeeker, path string, extension string) 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(io.ReadSeeker, string, string) error); ok {
-		r1 = rf(src, path, extension)
+	if rf, ok := ret.Get(1).(func(io.ReadSeeker, string) error); ok {
+		r1 = rf(src, path)
 	} else {
 		r1 = ret.Error(1)
 	}

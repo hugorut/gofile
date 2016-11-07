@@ -18,8 +18,8 @@ The interface across the different filesystems is as follows:
 
 ```go
 type FileSystem interface {
-    Put(src io.ReadSeeker, path, extension string) (file, error)
-    Get(path string) (file, error)
+    Put(src io.ReadSeeker, path string) (File, error)
+    Get(path string) (File, error)
 }
 ```
 

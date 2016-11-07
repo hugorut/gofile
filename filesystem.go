@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"io"
 	"io/ioutil"
+	"mime"
 	"os"
 	"regexp"
 	"strings"
@@ -38,6 +39,14 @@ func SanitizePath(path string) string {
 	return reg.ReplaceAllString(strings.TrimSpace(path), "-")
 }
 
+// Get the mime type from a path to a file
+func GetMIMETypeFromPath(path string) string {
+	r := regexp.MustCompile("(\\.\\w+$)")
+	extension := r.FindStringSubmatch(path)[0]
+
+	return mime.TypeByExtension(extension)
+}
+
 func joinPath(path, fileType string) string {
 	r := regexp.MustCompile("^.+/")
 	extension := r.ReplaceAllString(fileType, "")
@@ -48,8 +57,13 @@ func joinPath(path, fileType string) string {
 type FileSystem interface {
 	// Put a file into a filesystem and return a File interface which
 	// will give you information about the location and status of
-	// the uploaded file
-	Put(src io.ReadSeeker, path, extension string) (File, error)
+	// the uploaded file the path must contain the file and full extension
+	//
+	// e.g. /path/to/my/funky/file.gif
+	Put(src io.ReadSeeker, path string) (File, error)
+
+	// get a file from the file system, return the File interface
+	// so that all generic file interactions can be facilitated
 	Get(path string) (File, error)
 }
 

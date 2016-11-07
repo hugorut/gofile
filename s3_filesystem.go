@@ -61,19 +61,19 @@ func (fs *S3FileSystem) Get(path string) (File, error) {
 
 // put a file into a key with an s3 bucket, start a session and make a request to put an object
 // returns a file interface from the response
-func (fs *S3FileSystem) Put(src io.ReadSeeker, path string, fileType string) (File, error) {
+func (fs *S3FileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
 	path = SanitizePath(path)
-	full := joinPath(path, fileType)
+	mimeType := GetMIMETypeFromPath(path)
 
 	content, _ := ioutil.ReadAll(src)
 	params := &s3.PutObjectInput{
 		Bucket:        aws.String(fs.bucket),
-		Key:           aws.String(full),
+		Key:           aws.String(path),
 		Body:          bytes.NewReader(content),
 		ContentLength: aws.Int64(int64(len(content))),
-		ContentType:   aws.String(fileType),
+		ContentType:   aws.String(mimeType),
 	}
 
 	_, err := svc.PutObject(params)
@@ -82,7 +82,7 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, path string, fileType string) (Fi
 	}
 
 	now := fs.time.Now()
-	return NewS3File(content, fs.FileUrl(full), &now, fs), nil
+	return NewS3File(content, fs.FileUrl(path), &now, fs), nil
 }
 
 // return a url to the corresponding file
@@ -164,9 +164,9 @@ func (s *S3File) Seek(offset int64, whence int) (int64, error) {
 // write to the file location
 func (s *S3File) Write(p []byte) (n int, err error) {
 	read := len(p)
-	// file path and name needed
+
 	info, _ := s.Stat()
-	_, err = s.fs.Put(bytes.NewReader(p), info.Name(), info.Name())
+	_, err = s.fs.Put(bytes.NewReader(p), info.Name())
 	return read, err
 }
 
