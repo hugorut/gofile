@@ -4,13 +4,15 @@ Gofile provides a consistent and simple interface to deal with differing filesys
 
 Currently Gofile supports interactions with the core *OS* and *Amazon S3* filesystems, with the *Google Cloud* application in development.
 
-### Usage
+### Installation
 
 Install Gofile via `go get`
 
 ```
 go get github.com/hugorut/gofile
 ```
+
+### Usage
 
 The interface across the different filesystems is as follows:
 
@@ -21,10 +23,10 @@ type FileSystem interface {
 }
 ```
 
-with each method returning a `gofile.file` interface:
+with each method returning a `gofile.File` interface:
 
 ```go
-type file interface {
+type File interface {
     io.Closer
     io.ReadWriteSeeker
     Stat() (os.FileInfo, error)

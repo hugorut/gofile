@@ -40,7 +40,7 @@ func NewS3FileSystem(region, bucket string, provider credentials.Provider) *S3Fi
 }
 
 // get a file using a specific s3 key and return an instance of the file interface
-func (fs *S3FileSystem) Get(path string) (file, error) {
+func (fs *S3FileSystem) Get(path string) (File, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
 	params := &s3.GetObjectInput{
@@ -61,7 +61,7 @@ func (fs *S3FileSystem) Get(path string) (file, error) {
 
 // put a file into a key with an s3 bucket, start a session and make a request to put an object
 // returns a file interface from the response
-func (fs *S3FileSystem) Put(src io.ReadSeeker, path string, fileType string) (file, error) {
+func (fs *S3FileSystem) Put(src io.ReadSeeker, path string, fileType string) (File, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
 	path = SanitizePath(path)

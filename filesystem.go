@@ -46,12 +46,15 @@ func joinPath(path, fileType string) string {
 
 // the wrapped for the filesystem interface which allows an fluent interface
 type FileSystem interface {
-	Put(src io.ReadSeeker, path, extension string) (file, error)
-	Get(path string) (file, error)
+	// Put a file into a filesystem and return a File interface which
+	// will give you information about the location and status of
+	// the uploaded file
+	Put(src io.ReadSeeker, path, extension string) (File, error)
+	Get(path string) (File, error)
 }
 
-// the file which will be returned by the fs
-type file interface {
+// the File which will be returned by the fs
+type File interface {
 	io.Closer
 	io.ReadWriteSeeker
 	Stat() (os.FileInfo, error)

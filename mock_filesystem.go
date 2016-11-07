@@ -29,15 +29,15 @@ func (_m *MockCoreFs) MkdirAll(path string, perm os.FileMode) error {
 }
 
 // Create provides a mock function with given fields: name
-func (_m *MockCoreFs) Create(name string) (file, error) {
+func (_m *MockCoreFs) Create(name string) (File, error) {
 	ret := _m.Called(name)
 
-	var r0 file
-	if rf, ok := ret.Get(0).(func(string) file); ok {
+	var r0 File
+	if rf, ok := ret.Get(0).(func(string) File); ok {
 		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(file)
+			r0 = ret.Get(0).(File)
 		}
 	}
 
@@ -52,15 +52,15 @@ func (_m *MockCoreFs) Create(name string) (file, error) {
 }
 
 // Open provides a mock function with given fields: name
-func (_m *MockCoreFs) Open(name string) (file, error) {
+func (_m *MockCoreFs) Open(name string) (File, error) {
 	ret := _m.Called(name)
 
-	var r0 file
-	if rf, ok := ret.Get(0).(func(string) file); ok {
+	var r0 File
+	if rf, ok := ret.Get(0).(func(string) File); ok {
 		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(file)
+			r0 = ret.Get(0).(File)
 		}
 	}
 
@@ -267,15 +267,15 @@ func NewMockFilesystem() *MockFileSystem {
 }
 
 // Get provides a mock function with given fields: path
-func (_m *MockFileSystem) Get(path string) (file, error) {
+func (_m *MockFileSystem) Get(path string) (File, error) {
 	ret := _m.Called(path)
 
-	var r0 file
-	if rf, ok := ret.Get(0).(func(string) file); ok {
+	var r0 File
+	if rf, ok := ret.Get(0).(func(string) File); ok {
 		r0 = rf(path)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(file)
+			r0 = ret.Get(0).(File)
 		}
 	}
 
@@ -289,16 +289,16 @@ func (_m *MockFileSystem) Get(path string) (file, error) {
 	return r0, r1
 }
 
-// Put provides a mock function with given fields: src, location, fileType
-func (_m *MockFileSystem) Put(src io.ReadSeeker, path string, extension string) (file, error) {
+// Put provides a mock function with given fields: src, location, FileType
+func (_m *MockFileSystem) Put(src io.ReadSeeker, path string, extension string) (File, error) {
 	ret := _m.Called(src, path, extension)
 
-	var r0 file
-	if rf, ok := ret.Get(0).(func(io.ReadSeeker, string, string) file); ok {
+	var r0 File
+	if rf, ok := ret.Get(0).(func(io.ReadSeeker, string, string) File); ok {
 		r0 = rf(src, path, extension)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(file)
+			r0 = ret.Get(0).(File)
 		}
 	}
 

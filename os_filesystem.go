@@ -9,8 +9,8 @@ import (
 
 // the core filesystem which can be extended and mocked
 type CoreFs interface {
-	Open(name string) (file, error)
-	Create(name string) (file, error)
+	Open(name string) (File, error)
+	Create(name string) (File, error)
 	Stat(name string) (os.FileInfo, error)
 	Copy(dst io.Writer, src io.Reader) (int64, error)
 	MkdirAll(path string, perm os.FileMode) error
@@ -20,8 +20,8 @@ type CoreFs interface {
 type osFS struct{}
 
 // wrapper functions to call the underlying core os and io utilities
-func (osFS) Open(name string) (file, error)                   { return os.Open(name) }
-func (osFS) Create(name string) (file, error)                 { return os.Create(name) }
+func (osFS) Open(name string) (File, error)                   { return os.Open(name) }
+func (osFS) Create(name string) (File, error)                 { return os.Create(name) }
 func (osFS) Stat(name string) (os.FileInfo, error)            { return os.Stat(name) }
 func (osFS) Copy(dst io.Writer, src io.Reader) (int64, error) { return io.Copy(dst, src) }
 func (osFS) MkdirAll(path string, perm os.FileMode) error     { return os.MkdirAll(path, perm) }
@@ -38,7 +38,7 @@ func NewOSFileSystem() *OSFileSystem {
 }
 
 // create a file with the given location and type and then copy
-func (fs *OSFileSystem) Put(src io.ReadSeeker, path, extension string) (file, error) {
+func (fs *OSFileSystem) Put(src io.ReadSeeker, path, extension string) (File, error) {
 	path = SanitizePath(path)
 	r := regexp.MustCompile("\\/.+$")
 
@@ -59,6 +59,6 @@ func (fs *OSFileSystem) Put(src io.ReadSeeker, path, extension string) (file, er
 }
 
 // get a file from the core os
-func (fs *OSFileSystem) Get(key string) (file, error) {
+func (fs *OSFileSystem) Get(key string) (File, error) {
 	return fs.os.Open(key)
 }
