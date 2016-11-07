@@ -49,6 +49,7 @@ func TestGetMIMETypeFromPath(t *testing.T) {
 		"/my/path/here/image.jpg": "image/jpeg",
 		"image.jpg":               "image/jpeg",
 		"path/image.jpg":          "image/jpeg",
+		"path/image":              "text/plain",
 	}
 
 	for input, expected := range paths {

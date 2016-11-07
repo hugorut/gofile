@@ -42,9 +42,13 @@ func SanitizePath(path string) string {
 // Get the mime type from a path to a file
 func GetMIMETypeFromPath(path string) string {
 	r := regexp.MustCompile("(\\.\\w+$)")
-	extension := r.FindStringSubmatch(path)[0]
+	extension := r.FindStringSubmatch(path)
 
-	return mime.TypeByExtension(extension)
+	if len(extension) == 0 {
+		return "text/plain"
+	}
+
+	return mime.TypeByExtension(extension[0])
 }
 
 func joinPath(path, fileType string) string {

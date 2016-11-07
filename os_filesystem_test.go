@@ -108,3 +108,16 @@ func TestOsFileSystemCopyErrorPassedBack(t *testing.T) {
 	assert.Equal(t, mockFile, file)
 	assert.Equal(t, e, err)
 }
+
+func TestOsFileSystemPutReturnsErrorPathIncorrect(t *testing.T) {
+	path := "\\]]]]sys  dfsdf-21321321;3;"
+
+	src := new(MockReader)
+	corefs := new(MockCoreFs)
+
+	fs := OSFileSystem{
+		corefs,
+	}
+	_, err := fs.Put(src, path)
+	assert.Equal(t, errorIncorrectPath, err)
+}

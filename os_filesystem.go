@@ -1,11 +1,14 @@
 package gofile
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 )
+
+var errorIncorrectPath = errors.New("The path given was provided in the incorrect format")
 
 // the core filesystem which can be extended and mocked
 type CoreFs interface {
@@ -50,6 +53,11 @@ func (fs *OSFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	}
 
 	matches := r.FindStringSubmatch(path)
+
+	if len(matches) < 1 {
+		return new(os.File), errorIncorrectPath
+	}
+
 	fs.os.MkdirAll(matches[1], 0755)
 
 	file, err := fs.os.Create(path)
