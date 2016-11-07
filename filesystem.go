@@ -27,7 +27,7 @@ func StripBaseEncoding(image []byte) []byte {
 
 // determine the base 64 image type from an encoded image
 func Base64ImageType(image []byte) string {
-	r := regexp.MustCompile("data:(image/[^;]+);base64,")
+	r := regexp.MustCompile("data:image/([^;]+);base64,")
 	matches := r.FindSubmatch(image)
 
 	return string(matches[1])

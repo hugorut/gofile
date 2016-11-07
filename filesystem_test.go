@@ -20,7 +20,7 @@ func TestBase64ToDecoder(t *testing.T) {
 func TestBase64ImageType(t *testing.T) {
 	im := []byte("data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")
 	ty := Base64ImageType(im)
-	assert.Equal(t, "image/gif", ty)
+	assert.Equal(t, "gif", ty)
 }
 
 func TestSanitizePath(t *testing.T) {
