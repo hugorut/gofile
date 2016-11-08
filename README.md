@@ -106,7 +106,7 @@ type ImageStoreRequest struct {
     Image []byte "json:image"
 }
 
-//a Http Handler which performs an image upload from a request 
+// UploadImage is a http.HandlerFunc which performs an image upload from a request 
 // which holds an base63 encoded image
 func UploadImage(w http.ResponseWriter, r *http.Request) {
     var imageRequest ImageStoreRequest
