@@ -14,8 +14,8 @@ import (
 )
 
 // The S3 filesystem provides a consistent interface around the aws golang sdk
-// again the s3 filesystem supports just two methods, Put and Get which return
-// file interfaces
+// again the s3 filesystem supports just two methods,
+// Put and Get which return File interfaces
 type S3FileSystem struct {
 	bucket string
 	config *aws.Config
@@ -23,10 +23,10 @@ type S3FileSystem struct {
 	time   Time
 }
 
-// Generate a pointer to a new s3 filesystem
-// the constructor takes both the region and bucket that you wish to operate as your filesystem
-// the final argument is an aws provider, this is a struct which is in charge of getting
-// your aws credentials, it is recommended to use the aws.EnvProvider with the filesystem
+// NewS3FileSystem is a construct function takes both the region, bucket, and credential provider of your s3 filesystem
+// the region and bucket parameters are self explanatory and represent configuration that you can find in you aws dashboard
+// the final argument, the aws provider, this is a struct which is in charge of getting your aws credentials
+// it is recommended to use the aws.EnvProvider with the filesystem
 func NewS3FileSystem(region, bucket string, provider credentials.Provider) *S3FileSystem {
 	return &S3FileSystem{
 		bucket,
@@ -39,7 +39,7 @@ func NewS3FileSystem(region, bucket string, provider credentials.Provider) *S3Fi
 	}
 }
 
-// get a file using a specific s3 key and return an instance of the file interface
+// Get finds and return a File using a specific s3 key
 func (fs *S3FileSystem) Get(path string) (File, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
@@ -59,8 +59,9 @@ func (fs *S3FileSystem) Get(path string) (File, error) {
 	return NewS3File(r, fs.FileUrl(path), resp.LastModified, fs), nil
 }
 
-// put a file into a key with an s3 bucket, start a session and make a request to put an object
-// returns a file interface from the response
+// Put uploads a a readers contents to a specific s3 key
+// the function is in charge of starting a session and sending the a structured request to the api
+// it returns a File interface from the response which can be used to get information about the upload
 func (fs *S3FileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	svc := fs.caller.NewSvc(fs.config)
 
@@ -85,24 +86,24 @@ func (fs *S3FileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	return NewS3File(content, fs.FileUrl(path), &now, fs), nil
 }
 
-// return a url to the corresponding file
+// FileUrl takes a path and formats its to a url to the corresponding file
 func (fs *S3FileSystem) FileUrl(path string) string {
 	return "https://s3-" + *fs.config.Region + ".amazonaws.com/" + fs.bucket + "/" + path
 }
 
-// the interface that defines a wrapper around s3 interactions so that the calls
-// can be safely mocked and extended accordingly
+// S3Caller interface defines a wrapper around s3 interactions allowing calls can be safely mocked
 type S3Caller interface {
 	PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error)
 	GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error)
 	NewSvc(cfgs ...*aws.Config) S3Caller
 }
 
+// S3Call strcut implements the S3Caller interface by delegating calls to the svc pointer
 type S3Call struct {
 	svc *s3.S3
 }
 
-// set the aws session instance so that calls can be made to the service
+// NewSvc sets the aws session instance so that calls can be made to the service
 func (s *S3Call) NewSvc(cfgs ...*aws.Config) S3Caller {
 	sess := session.New(cfgs...)
 	s.svc = s3.New(sess)
@@ -110,25 +111,27 @@ func (s *S3Call) NewSvc(cfgs ...*aws.Config) S3Caller {
 	return s
 }
 
-// put an object into s3 using an PutObjectInput
+// PutObject uploads object to s3 using an PutObjectInput struct
 func (s *S3Call) PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error) {
 	return s.svc.PutObject(input)
 }
 
-// get an object from an s3 GetObjectInput
+// GetObject from the s3 api using an GetObjectInput struct
 func (s *S3Call) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error) {
 	return s.svc.GetObject(input)
 }
 
-// A struct which conforms to the file interface
+// S3File conforms to the File interface defining all of the generic file handling
 type S3File struct {
 	r    io.ReadSeeker
 	info *S3FileInfo
 	fs   *S3FileSystem
 }
 
-// helper function to generate a s3 file pointer by taking the
-// byte representation of the the file
+// NewS3File is a contruct function to generate a s3 file pointer
+// It takes the contents that the file holds aswell and the path to its location on s3
+// as well as mod which represents the time modified, the final argument is the s3 filesystem
+// that the File was created under, this is used for functions such as Create
 func NewS3File(contents []byte, path string, mod *time.Time, fs *S3FileSystem) *S3File {
 	return &S3File{
 		bytes.NewReader(contents),
@@ -141,27 +144,27 @@ func NewS3File(contents []byte, path string, mod *time.Time, fs *S3FileSystem) *
 	}
 }
 
-// close method has no functionality
+// Close method has no functionality but is used to conform to the interface
 func (s *S3File) Close() error {
 	return nil
 }
 
-// return the file info
+// Stat returns the file info of the s3 file
 func (s *S3File) Stat() (os.FileInfo, error) {
 	return s.info, nil
 }
 
-// delegate to the implanted reader to read bytes
+// Read defines how the file should be read, delegates to the implanted readseeker in the struct
 func (s *S3File) Read(p []byte) (n int, err error) {
 	return s.r.Read(p)
 }
 
-// delegate to the implanted seeker to read bytes
+// Seek delegates to the implanted readseeker in the struct
 func (s *S3File) Seek(offset int64, whence int) (int64, error) {
 	return s.r.Seek(offset, whence)
 }
 
-// write to the file location
+// Write writes bytes to the path location by calling the implanted filesystem
 func (s *S3File) Write(p []byte) (n int, err error) {
 	read := len(p)
 
@@ -170,39 +173,39 @@ func (s *S3File) Write(p []byte) (n int, err error) {
 	return read, err
 }
 
-// A struct which conforms to the file interface
+// S3FileInfo is A struct which conforms to the file interface which provides information about the s3 file
 type S3FileInfo struct {
 	path    string
 	content []byte
 	mod     *time.Time
 }
 
-// base name of the file
+// Name gets the base path of the file
 func (s *S3FileInfo) Name() string {
 	return s.path
 }
 
-// length in bytes
+// Size returns the length in bytes of the file
 func (s *S3FileInfo) Size() int64 {
 	return int64(len(s.content))
 }
 
-// s3 file is assumed not to be a directory
+// IsDir returns false as s3 file is assumed not to be a directory
 func (s *S3FileInfo) IsDir() bool {
 	return false
 }
 
-// file mode bits
+// Mode returns a os.ModePerm as the file is assumed perm
 func (s *S3FileInfo) Mode() os.FileMode {
 	return os.ModePerm
 }
 
-// underlying data source which should return nil
+// Sys underlying data source which should return nil
 func (s *S3FileInfo) Sys() interface{} {
 	return nil
 }
 
-// modification time
+// ModTime returns modification time
 func (s *S3FileInfo) ModTime() time.Time {
 	return *s.mod
 }

@@ -10,7 +10,7 @@ import (
 
 var errorIncorrectPath = errors.New("The path given was provided in the incorrect format")
 
-// the core filesystem which can be extended and mocked
+// CoreFs interface defines a wrapper around core filesystem so that it can be extended and mocked
 type CoreFs interface {
 	Open(name string) (File, error)
 	Create(name string) (File, error)
@@ -22,25 +22,34 @@ type CoreFs interface {
 // osFS implements coreFs using the local disk.
 type osFS struct{}
 
-// wrapper functions to call the underlying core os and io utilities
-func (osFS) Open(name string) (File, error)                   { return os.Open(name) }
-func (osFS) Create(name string) (File, error)                 { return os.Create(name) }
-func (osFS) Stat(name string) (os.FileInfo, error)            { return os.Stat(name) }
-func (osFS) Copy(dst io.Writer, src io.Reader) (int64, error) { return io.Copy(dst, src) }
-func (osFS) MkdirAll(path string, perm os.FileMode) error     { return os.MkdirAll(path, perm) }
+// Open calls the default os.Open
+func (osFS) Open(name string) (File, error) { return os.Open(name) }
 
-// filesystem which wraps the native os system
+// Create calls the default os.Create
+func (osFS) Create(name string) (File, error) { return os.Create(name) }
+
+// Stat calls the default os.Stat
+func (osFS) Stat(name string) (os.FileInfo, error) { return os.Stat(name) }
+
+// Copy calls io.Copy
+func (osFS) Copy(dst io.Writer, src io.Reader) (int64, error) { return io.Copy(dst, src) }
+
+// MkdirAll calls the default os.MkdirAll
+func (osFS) MkdirAll(path string, perm os.FileMode) error { return os.MkdirAll(path, perm) }
+
+// OSFileSystem implements the FileSystem interface by calling the CoreFs
 type OSFileSystem struct {
 	os CoreFs
 }
 
+// NewOSFileSystem is a construct function that returns a pointer to a OSFileSystem
 func NewOSFileSystem() *OSFileSystem {
 	return &OSFileSystem{
 		&osFS{},
 	}
 }
 
-// create a file with the given location and type and then copy
+// Put creates a file with the given location, creating the directories as needed
 func (fs *OSFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	path = SanitizePath(path)
 	r := regexp.MustCompile("(.+\\/)*(.+)\\.(.+)$")
@@ -73,7 +82,7 @@ func (fs *OSFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	return file, nil
 }
 
-// get a file from the core os
+// Get returns a file from the core os
 func (fs *OSFileSystem) Get(key string) (File, error) {
 	return fs.os.Open(key)
 }
