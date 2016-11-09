@@ -158,7 +158,7 @@ This returns an implementation of the `Filesystem` interface which is a `testify
     file := new(sys.MockFile)
     info := new(sys.MockFileInfo)
 
-    reader := sys.Base64ToDecoder([]byte(im))
+    reader := bytes.NewReader([]byte(im))
     mockFilesystem.On("Put", reader, path).Return(file, nil)
 ```
 
