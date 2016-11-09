@@ -123,7 +123,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) {
     ext := gofile.Base64ImageType(imageRequest.Image)
     file, err := filesys.Put(
         gofile.Base64ToDecoder(imageRequest.Image),
-        "my/path/to/thefile."+ext,
+        "my/path/to/thefile." + ext,
     )
 
     if err != nil {
