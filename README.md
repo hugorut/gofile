@@ -105,7 +105,7 @@ var filesys = gofile.NewS3FileSystem(region, bucket, &aws.EnvProvider{})
 
 // The request struct to marshal the json into
 type ImageStoreRequest struct {
-    Image []byte "json:image"
+    Image string "json:image"
 }
 
 // UploadImage is a http.HandlerFunc which performs an image upload from a request 
@@ -118,11 +118,13 @@ func UploadImage(w http.ResponseWriter, r *http.Request) {
         errorResponse(w, err)
     }
     
+
     //Lets get the extension of the file through a helper function
     //and then call the Put function in order to upload the file
-    ext := gofile.Base64ImageType(imageRequest.Image)
+    im := []byte(imageRequest.Image)
+    ext := gofile.Base64ImageType(im)
     file, err := filesys.Put(
-        gofile.Base64ToDecoder(imageRequest.Image),
+        gofile.Base64ToDecoder(im),
         "my/path/to/thefile." + ext,
     )
 
