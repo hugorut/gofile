@@ -1,5 +1,7 @@
 #Gofile
 
+[![GoDoc](https://godoc.org/github.com/hugorut/gofile?status.svg)](https://godoc.org/github.com/hugorut/gofile)
+
 Gofile provides a consistent and simple interface to deal with differing file systems. It provides great flexibility and allows you to easily mock out and unit test file interactions.
 
 Currently Gofile supports interactions with the core *OS* and *Amazon S3* file systems, with the *Google Cloud* application in development.

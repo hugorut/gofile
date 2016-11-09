@@ -10,7 +10,7 @@ import (
 
 var errorIncorrectPath = errors.New("The path given was provided in the incorrect format")
 
-// CoreFs interface defines a wrapper around core filesystem so that it can be extended and mocked
+// CoreFs interface defines a wrapper around core filesystem so that it can be extended and mocked.
 type CoreFs interface {
 	Open(name string) (File, error)
 	Create(name string) (File, error)
@@ -22,41 +22,41 @@ type CoreFs interface {
 // osFS implements coreFs using the local disk.
 type osFS struct{}
 
-// Open calls the default os.Open
+// Open calls the default os.Open.
 func (osFS) Open(name string) (File, error) { return os.Open(name) }
 
-// Create calls the default os.Create
+// Create calls the default os.Create.
 func (osFS) Create(name string) (File, error) { return os.Create(name) }
 
-// Stat calls the default os.Stat
+// Stat calls the default os.Stat.
 func (osFS) Stat(name string) (os.FileInfo, error) { return os.Stat(name) }
 
-// Copy calls io.Copy
+// Copy calls io.Copy.
 func (osFS) Copy(dst io.Writer, src io.Reader) (int64, error) { return io.Copy(dst, src) }
 
-// MkdirAll calls the default os.MkdirAll
+// MkdirAll calls the default os.MkdirAll.
 func (osFS) MkdirAll(path string, perm os.FileMode) error { return os.MkdirAll(path, perm) }
 
-// OSFileSystem implements the FileSystem interface by calling the CoreFs
+// OSFileSystem implements the FileSystem interface by calling the CoreFs.
 type OSFileSystem struct {
 	os CoreFs
 }
 
-// NewOSFileSystem is a construct function that returns a pointer to a OSFileSystem
+// NewOSFileSystem is a construct function that returns a pointer to a OSFileSystem.
 func NewOSFileSystem() *OSFileSystem {
 	return &OSFileSystem{
 		&osFS{},
 	}
 }
 
-// Put creates a file with the given location, creating the directories as needed
+// Put creates a file with the given location, creating the directories as needed.
 func (fs *OSFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	path = SanitizePath(path)
 	r := regexp.MustCompile("(.+\\/)*(.+)\\.(.+)$")
 	t := regexp.MustCompile("^\\/")
 
 	// if we don't have a leading slash then we need to add a dot in order to
-	// faciliate relative path creation
+	// faciliate relative path creation.
 	if !t.MatchString(path) {
 		path = "." + string(filepath.Separator) + path
 	}
@@ -82,7 +82,7 @@ func (fs *OSFileSystem) Put(src io.ReadSeeker, path string) (File, error) {
 	return file, nil
 }
 
-// Get returns a file from the core os
+// Get returns a file from the core os.
 func (fs *OSFileSystem) Get(key string) (File, error) {
 	return fs.os.Open(key)
 }
